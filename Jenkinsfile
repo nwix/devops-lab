@@ -1,16 +1,25 @@
-pipeline { 
-    agent any 
+pipeline {
+    agent any
+
     stages {
-        
-        stage ('Build Docker') { 
+        stage('Build Docker') {
             steps {
-                bat 'docker build -t webapp:latest .' 
+                bat 'docker build -t webapp:latest .'
             }
         }
-        stage('Deploy Kubernetes') { 
+
+        stage('Deploy Kubernetes') {
             steps {
-                bat 'kubectl apply -f deployment.yaml' 
-                bat 'kubectl apply -f service.yaml' 
+                // FORCE l'ajout de --validate=false
+                bat 'kubectl apply -f deployment.yaml --validate=false'
+                bat 'kubectl apply -f service.yaml --validate=false'
+            }
+        }
+
+        stage('Status') {
+            steps {
+                bat 'kubectl get pods'
+                bat 'kubectl get svc webapp-service'
             }
         }
     }
